@@ -15,8 +15,6 @@
 #include <stdint.h>
 #include <windows.h>
 
-//#include "upload.h"
-
 #define DEBUG_ERROR		(debug&0x0001)								// Print Error Messages, like invalid peripheral access							//
 #define DEBUG_UART      (debug&0x0002)
 #define VERBOSE_DEBUG	(debug&0x8000)

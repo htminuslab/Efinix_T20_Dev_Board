@@ -167,90 +167,13 @@ HANDLE open_comport(char *devicename,uint32_t baud,char parity,int databits,int 
 		}
 		
 	   	set_up_serial_port(port, baud);								// Set up comport 
-		 
-		 
-		// osStatus.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-		// if (osStatus.hEvent == NULL) {
-			// printf("\nCreateEvent returned an error\n");
-		// }
-		
-		// osRXStatus.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-		// if (osRXStatus.hEvent == NULL) {
-			// printf("\nRX CreateEvent returned an error\n");
-		// }
-		
-		// osTXStatus.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-		// if (osTXStatus.hEvent == NULL) {
-			// printf("\nTX CreateEvent returned an error\n");
-		// }
-				 		 
+		 			 		 
 		flushcom(port);												// purge any information in the buffer
    	
 		if (debug) printf("%s Initialised OK\n",devicename);
 	}
 	return port;													// Return Handle or INVALID_HANDLE_VALUE
 }
-
-
-// //---------------------------------------------------------------------------
-// // Return WaitCommEvent mask  
-// //---------------------------------------------------------------------------
-// DWORD get_comstatus(HANDLE port)
-// {
-	// DWORD retmask=0;
-
-	// if (!fWaitingOnStat) {
-        // if (!WaitCommEvent(port, &dwCommEvent, &osStatus)) {
-			// if (GetLastError() == ERROR_IO_PENDING) {
-               // fWaitingOnStat = TRUE;
-			// } else {
-               // printf("\nError in WaitCommEvent\n");
-			// }
-		// } else retmask=dwCommEvent;           						// WaitCommEvent returned mask status		
-	// }
-
-    // // Check on overlapped operation.
-	// if (fWaitingOnStat) {
-         // // Wait a little while for an event to occur.
-		// dwRes = WaitForSingleObject(osStatus.hEvent, STATUS_CHECK_TIMEOUT);
-		// switch(dwRes) {           									// Event occurred.
-			// case WAIT_OBJECT_0: 
-				// if (!GetOverlappedResult(port, &osStatus, &dwOvRes, FALSE))
-                    // // An error occurred in the overlapped operation;
-                    // // call GetLastError to find out what it was
-                    // // and abort if it is fatal.
-					// printf("\nGetOverlappedResult returned an error\n");
-                 // else
-                    // // Status event is stored in the event flag
-                    // // specified in the original WaitCommEvent call.
-                    // // Deal with the status event as appropriate.
-                    // retmask=dwCommEvent;           					// WaitCommEvent returned mask status
-
-                 // // Set fWaitingOnStat flag to indicate that a new
-                 // // WaitCommEvent is to be issued.
-                 // fWaitingOnStat = FALSE;
-                 // break;
-
-             // case WAIT_TIMEOUT:
-                 // // Operation isn't complete yet. fWaitingOnStatusHandle flag 
-                 // // isn't changed since I'll loop back around and I don't want
-                 // // to issue another WaitCommEvent until the first one finishes.
-                 // //
-                 // // This is a good time to do some background work.
-                // //DoBackgroundWork();
-                 // break;                       
-
-             // default:
-                 // // Error in the WaitForSingleObject; abort
-                 // // This indicates a problem with the OVERLAPPED structure's
-                 // // event handle.
-				// printf("\nproblem with the OVERLAPPED structure event handle\n");
-                // CloseHandle(osStatus.hEvent);
-         // }
-      // }
-	// return retmask;
-// }
-
 
 //---------------------------------------------------------------------------
 // Write single char to comport, txdelay in ms
@@ -260,8 +183,7 @@ int write_comport(HANDLE port, unsigned char c, int txdelay)
 {
 	DWORD dwBytesWritten = 0;
 	
-    if (WriteFile(port,&c,1,&dwBytesWritten,NULL)) {
-	//if (WriteFile(port,&c,1,&dwBytesWritten,&osTXStatus)) {		
+    if (WriteFile(port,&c,1,&dwBytesWritten,NULL)) {	
 		if (dwBytesWritten && (DEBUG_UART)) {
 			printf("%02X",c);	
 		}			
@@ -269,7 +191,6 @@ int write_comport(HANDLE port, unsigned char c, int txdelay)
 		printf("WriteFile failed error=%ld\n",GetLastError());
 	}
 	Sleep(txdelay);							// Delay in ms after TX
-	//CloseHandle(osTXStatus.hEvent);
 	return (int)dwBytesWritten; 								
 }
 
@@ -299,11 +220,6 @@ int write_comport_array(HANDLE port, const unsigned char *buffer, int len)
 	//CloseHandle(osTXStatus.hEvent);
 	return (int)dwBytesWritten; 								
 }
-
-// bool get_comstatus(void)
-// {
-	// return WaitCommEvent(hComm, &dwEventMask, NULL); 
-// }
 
 //---------------------------------------------------------------------------
 // get character from comport
@@ -350,24 +266,3 @@ int read_comport_array(HANDLE port, unsigned char *buffer, int buflen)
    	return n-1;
 }
 
-
-// uint8_t gencrc(uint8_t *data, size_t len)
-// {
-    // //uint8_t crc = 0xff;
-	// uint8_t crc = 0;
-    // size_t i, j;
-	
-    // for (i = 0; i < len; i++) {
-		// //printf("\ndata=%02x crc=%02x",data[i],crc);
-        // crc ^= data[i];
-        // for (j = 0; j < 8; j++) {
-            // if ((crc & 0x80) != 0)
-                // //crc = (uint8_t)((crc << 1) ^ 0x31);
-				// crc = (uint8_t)((crc << 1) ^ 0x07); // standard 
-            // else
-                // crc <<= 1;
-        // }
-		// //printf(" -> crc=%02x\n",crc);
-    // }
-    // return crc;
-// }

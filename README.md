@@ -69,7 +69,7 @@ The board should be able to be hand-soldered. This means no 0201 components wher
 
 # 4. How to order a fully assembled board
 
-You can order a fully assembled board from PCBWay, this is the easiest and quickest way to get the board. The only disadvantage of ordering a fully assembled board is the minimum order quantity of 5 boards. Note that the purchase is directly from PCBWAY, if something goes wrong you need to contact them directly, I have no control over this process other than making the design freely available. 
+You can order a [fully assembled board from PCBWay](https://www.pcbway.com/project/shareproject/Efinix_T20Q100_FPGA_Development_Board_0ee8c6c9.html), this is the easiest and quickest way to get the board. The only disadvantage of ordering a fully assembled board is the minimum order quantity of 5 boards. Note that the purchase is directly from PCBWAY, if something goes wrong you need to contact them directly, I have no control over this process other than making the design freely available. 
 
 <p align="center">
 <img src="readymade.png" alt="Fully Assembled Board"/>

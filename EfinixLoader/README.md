@@ -164,7 +164,6 @@ A pin can be read by issuing the -readport command, this will return the whole p
 
 ```
 H:\GitHub\Efinix_T20_Dev_Board\EfinityLoader>EfinixLoader.exe -com 7 -readporta
-?????
 ```
 It should be trivial to update the Efinixloader to just show the pin values. 
 
