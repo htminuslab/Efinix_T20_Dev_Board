@@ -1,0 +1,65 @@
+# Efinity Interface Configuration
+# Version: 2025.1.110.1.5
+# Date: 2025-06-25 15:59
+#
+# Copyright (C) 2013 - 2025 Efinix Inc. All rights reserved.
+#
+# Device: T20Q100F3
+# Package: 100-pin QFP (final)
+# Project: pll_test
+# Configuration mode: active (x1)
+# Timing Model: C4 (final)
+
+
+# Device setting
+design.set_device_property("1A_1B_1C","VOLTAGE","3.3","IOBANK")
+design.set_device_property("1D_1E","VOLTAGE","3.3","IOBANK")
+design.set_device_property("3A","VOLTAGE","3.3","IOBANK")
+design.set_device_property("3B_3C","VOLTAGE","3.3","IOBANK")
+design.set_device_property("3D_3E","VOLTAGE","3.3","IOBANK")
+design.set_device_property("4A","VOLTAGE","3.3","IOBANK")
+design.set_device_property("4B","VOLTAGE","3.3","IOBANK")
+design.set_device_property("BR","VOLTAGE","1.2","IOBANK")
+design.set_device_property("TL","VOLTAGE","1.2","IOBANK")
+design.set_device_property("TR","VOLTAGE","1.2","IOBANK")
+design.set_device_property("cfg","CBSEL_PIN","cfg_CBSEL","RU")
+design.set_device_property("cfg","CLK_PIN","","RU")
+design.set_device_property("cfg","CONFIG_PIN","cfg_CONFIG","RU")
+design.set_device_property("cfg","ENA_PIN","cfg_ENA","RU")
+design.set_device_property("cfg","ERROR_PIN","cfg_ERROR","RU")
+design.set_device_property("cfg","INVERT_CLK_EN","0","RU")
+design.set_device_property("cfg","RECONFIG_EN","0","RU")
+
+# Create instance
+design.create_pll_input_clock_gpio("CLK")
+design.create_output_gpio("LED1")
+design.create_output_gpio("LED2")
+design.create_output_gpio("LED3")
+design.create_input_gpio("RESETN")
+design.create_block("pll_inst1","PLL")
+
+# Set property, non-defaults
+design.set_property("pll_inst1","CLKOUT0_EN","1","PLL")
+design.set_property("pll_inst1","CLKOUT1_EN","0","PLL")
+design.set_property("pll_inst1","CLKOUT2_EN","0","PLL")
+design.set_property("pll_inst1","REFCLK_SOURCE","EXTERNAL","PLL")
+design.set_property("pll_inst1","CLKOUT0_CONN_TYPE","gclk","PLL")
+design.set_property("pll_inst1","CLKOUT0_DIV","16","PLL")
+design.set_property("pll_inst1","CLKOUT0_PHASE","0","PLL")
+design.set_property("pll_inst1","CLKOUT0_PIN","pll_inst1_CLKOUT0","PLL")
+design.set_property("pll_inst1","EXT_CLK","EXT_CLK1","PLL")
+design.set_property("pll_inst1","LOCKED_PIN","","PLL")
+design.set_property("pll_inst1","M","128","PLL")
+design.set_property("pll_inst1","N","1","PLL")
+design.set_property("pll_inst1","O","2","PLL")
+design.set_property("pll_inst1","REFCLK_FREQ","12.0","PLL")
+design.set_property("pll_inst1","RSTN_PIN","","PLL")
+design.set_property("pll_inst1","FEEDBACK_MODE","INTERNAL","PLL")
+
+# Set resource assignment
+design.assign_pkg_pin("CLK","54")
+design.assign_pkg_pin("LED1","29")
+design.assign_pkg_pin("LED2","33")
+design.assign_pkg_pin("LED3","35")
+design.assign_pkg_pin("RESETN","32")
+design.assign_resource("pll_inst1","PLL_BR0","PLL")

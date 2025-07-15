@@ -1,0 +1,45 @@
+# Efinity Interface Configuration
+# Version: 2025.1.110.1.5
+# Date: 2025-06-27 19:35
+#
+# Copyright (C) 2013 - 2025 Efinix Inc. All rights reserved.
+#
+# Device: T20Q100F3
+# Package: 100-pin QFP (final)
+# Project: pin_level
+# Configuration mode: active (x1)
+# Timing Model: C4 (final)
+
+
+# Device setting
+design.set_device_property("1A_1B_1C","VOLTAGE","3.3","IOBANK")
+design.set_device_property("1D_1E","VOLTAGE","3.3","IOBANK")
+design.set_device_property("3A","VOLTAGE","3.3","IOBANK")
+design.set_device_property("3B_3C","VOLTAGE","3.3","IOBANK")
+design.set_device_property("3D_3E","VOLTAGE","3.3","IOBANK")
+design.set_device_property("4A","VOLTAGE","3.3","IOBANK")
+design.set_device_property("4B","VOLTAGE","3.3","IOBANK")
+design.set_device_property("BR","VOLTAGE","1.2","IOBANK")
+design.set_device_property("TL","VOLTAGE","1.2","IOBANK")
+design.set_device_property("TR","VOLTAGE","1.2","IOBANK")
+design.set_device_property("cfg","CBSEL_PIN","cfg_CBSEL","RU")
+design.set_device_property("cfg","CLK_PIN","","RU")
+design.set_device_property("cfg","CONFIG_PIN","cfg_CONFIG","RU")
+design.set_device_property("cfg","ENA_PIN","cfg_ENA","RU")
+design.set_device_property("cfg","ERROR_PIN","cfg_ERROR","RU")
+design.set_device_property("cfg","INVERT_CLK_EN","0","RU")
+design.set_device_property("cfg","RECONFIG_EN","0","RU")
+
+# Create instance
+design.create_input_gpio("CLK")
+design.create_input_gpio("CMD")
+design.create_input_gpio("RESETN")
+design.create_output_gpio("TX")
+
+# Set property, non-defaults
+
+# Set resource assignment
+design.assign_pkg_pin("CLK","7")
+design.assign_pkg_pin("CMD","23")
+design.assign_pkg_pin("RESETN","4")
+design.assign_pkg_pin("TX","22")
