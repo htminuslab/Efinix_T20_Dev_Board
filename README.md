@@ -69,7 +69,9 @@ The board should be able to be hand-soldered. This means no 0201 components wher
 
 # 4. How to order a fully assembled board
 
-You can order a [fully assembled board from PCBWay](https://www.pcbway.com/project/shareproject/Efinix_T20Q100_FPGA_Development_Board_0ee8c6c9.html), this is the easiest and quickest way to get the board. The only disadvantage of ordering a fully assembled board is the minimum order quantity of 5 boards. Note that the purchase is directly from PCBWAY, if something goes wrong you need to contact them directly, I have no control over this process other than making the design freely available. 
+You can order a [fully assembled board from PCBWay](https://www.pcbway.com/project/shareproject/Efinix_T20Q100_FPGA_Development_Board_0ee8c6c9.html), this is the easiest and quickest way to get the board. The only disadvantage of ordering a fully assembled board is the minimum order quantity of 5 boards. The price [07/25] in roughly $144/£108 ($29/£22 per board), the price goes down quite quickly if you increase the order quantity. For example changing the order to 10 only increases the price to $169/£126 ($17/£13 per board) and to just $5.20/£4 if you order a 100.
+
+Note that the purchase is directly from PCBWAY, if something goes wrong you need to contact them directly, I have no control over this process other than making the design freely available. 
 
 <p align="center">
 <img src="readymade.png" alt="Fully Assembled Board"/>
@@ -81,18 +83,21 @@ Once you have received the board(s) you need to solder J5 (4 pins) and close jum
 
 # 5. How to make your own board
 
-Making your own board is the most cost-effective way unless you need more than one. The Gerber files, schematics and part list are available in the PCB directory. You can zip up these files and send them to PCBWAY, JLCPCB etc for manufacturing. I would highly recommend you add a stencil when you order this board. Also if you have never used these manufacturers before they might give you first-time-buyer vouchers which makes the board even cheaper. 
+Making your own board can be more cost-effective if you already have the necessary tools. The price from PCBWay [07/25] is $56/£42 for 5 boards ($11.20/£8.40 per board). The most expensive chip is the T20Q100F3 which is available from [DigiKey](https://www.digikey.com/en/products/detail/efinix-inc/T20Q100F3C4/19101258) for about $10,watch out for delivery charges. The remaining parts can be purchased for [LCSC Electronics](https://lcsc.com/) for very little money.
+
+The Gerber files, schematics and part list are available in the PCB directory. You can zip up these files and send them to PCBWAY, JLCPCB etc for manufacturing. I would highly recommend you add a stencil when you order this board. Also if you have never used these manufacturers before they might give you first-time-buyer vouchers which makes the board even cheaper. 
 
 <p align="center">
 <img src="blankpcb.PNG" alt="Blank PCB Board"/>
 </p>
 
-I assembled one of the board myself and although I did have some difficulties with dry joints and solder bridges it did work in the end.
-Most of the parts are available from [LCSC Electronics](https://lcsc.com/). The Efinix T20Q100F3C4 is available from [DigiKey](https://www.digikey.com/en/products/detail/efinix-inc/T20Q100F3C4/19101258) and others, watch out for delivery charges!
+I assembled one of the board myself and although I did have some difficulties with dry joints and solder bridges it did work in the end. I used a hotplate and a digital microscope to assemble it.
+
 
 # 6. Steps to program the on-board microcontroller
 
-There are several ways the STM32C071 microcontroller can be programmed. The initial idea was to use the on-board STM32 DFU loader which should work via the USB-C port, unfortunately this worked on one board but failed on others. I have not been able to figure why but I suspect the loader locks on to the wrong peripheral when it sniffs for data and never reaches the USB port. The only method that worked consistently and reliably on all boards was to use an ST-Link/V2 programmer. Luckily you can purchase one of the programmer for just a few pounds/dollars/euros on places like eBay, Amazon, AliExpress (which I used). 
+There are several ways the STM32C071 microcontroller can be programmed. The initial idea was to use the on-board STM32 DFU loader which should work via the USB-C port, unfortunately this worked on one board but failed on others. I have not been able to figure why but I suspect the loader locks on to the wrong peripheral when it sniffs for data and never reaches the USB port. 
+The only method that worked consistently and reliably on all boards was to use an ST-Link/V2 programmer. Luckily you can purchase one of the programmer for just a few pounds/dollars/euros on places like eBay, Amazon, AliExpress (which I used). 
 
 <p align="center">
 <img src="clone_stlink.png" alt="ST-Link/V2 programmer"/>
