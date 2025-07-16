@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<efxpt:design_db name="pll_test" device_def="T20Q100F3" version="2025.1.110.1.5" db_version="20251999" last_change_date="Wed Jul 16 19:42:46 2025" xmlns:efxpt="http://www.efinixinc.com/peri_design_db" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/peri_design_db peri_design_db.xsd ">
+<efxpt:design_db name="pll_clkout" device_def="T20Q100F3" version="2025.1.110.1.5" db_version="20251999" last_change_date="Wed Jul 16 19:13:11 2025" xmlns:efxpt="http://www.efinixinc.com/peri_design_db" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/peri_design_db peri_design_db.xsd ">
     <efxpt:device_info>
         <efxpt:iobank_info>
             <efxpt:iobank name="1A_1B_1C" iostd="3.3 V LVTTL / LVCMOS"/>
@@ -19,36 +19,22 @@
     </efxpt:device_info>
     <efxpt:gpio_info device_def="T20Q100F3">
         <efxpt:gpio name="CLK" gpio_def="GPIOR_157" mode="input" bus_name="" is_lvds_gpio="false" io_standard="3.3 V LVTTL / LVCMOS">
-            <efxpt:netlist_config netlist_checksum="pll_test.peri.db">
+            <efxpt:netlist_config netlist_checksum="pll_clkout.peri.db">
                 <efxpt:netlist_parameter name="CONN_TYPE" value="PLL_CLKIN"/>
                 <efxpt:netlist_parameter name="IN_PIN" value="CLK"/>
                 <efxpt:netlist_parameter name="IN_REG" value="BYPASS"/>
             </efxpt:netlist_config>
             <efxpt:input_config name="CLK" name_ddio_lo="" conn_type="pll_clkin" is_register="false" clock_name="" is_clock_inverted="false" pull_option="none" is_schmitt_trigger="false" ddio_type="none"/>
         </efxpt:gpio>
-        <efxpt:gpio name="LED1" gpio_def="GPIOB_TXP01" mode="output" bus_name="" is_lvds_gpio="true" io_standard="3.3 V LVTTL / LVCMOS">
-            <efxpt:netlist_config netlist_checksum="pll_test.peri.db">
-                <efxpt:netlist_parameter name="OUT_PIN" value="LED1"/>
+        <efxpt:gpio name="CLKOUT0" gpio_def="GPIOR_87" mode="output" bus_name="" is_lvds_gpio="false" io_standard="3.3 V LVTTL / LVCMOS">
+            <efxpt:netlist_config netlist_checksum="pll_clkout.peri.db">
+                <efxpt:netlist_parameter name="OUT_PIN" value="CLKOUT0"/>
                 <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
             </efxpt:netlist_config>
-            <efxpt:output_config name="LED1" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" drive_strength="1"/>
+            <efxpt:output_config name="CLKOUT0" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" drive_strength="4"/>
         </efxpt:gpio>
-        <efxpt:gpio name="LED2" gpio_def="GPIOB_TXN04" mode="output" bus_name="" is_lvds_gpio="true" io_standard="3.3 V LVTTL / LVCMOS">
-            <efxpt:netlist_config netlist_checksum="pll_test.peri.db">
-                <efxpt:netlist_parameter name="OUT_PIN" value="LED2"/>
-                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
-            </efxpt:netlist_config>
-            <efxpt:output_config name="LED2" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" drive_strength="1"/>
-        </efxpt:gpio>
-        <efxpt:gpio name="LED3" gpio_def="GPIOB_TXP07" mode="output" bus_name="" is_lvds_gpio="true" io_standard="3.3 V LVTTL / LVCMOS">
-            <efxpt:netlist_config netlist_checksum="pll_test.peri.db">
-                <efxpt:netlist_parameter name="OUT_PIN" value="LED3"/>
-                <efxpt:netlist_parameter name="OUT_REG" value="BYPASS"/>
-            </efxpt:netlist_config>
-            <efxpt:output_config name="LED3" name_ddio_lo="" register_option="none" clock_name="" is_clock_inverted="false" is_slew_rate="false" tied_option="none" ddio_type="none" drive_strength="1"/>
-        </efxpt:gpio>
-        <efxpt:gpio name="RESETN" gpio_def="GPIOB_TXP04" mode="input" bus_name="" is_lvds_gpio="true" io_standard="3.3 V LVTTL / LVCMOS">
-            <efxpt:netlist_config netlist_checksum="pll_test.peri.db">
+        <efxpt:gpio name="RESETN" gpio_def="GPIOL_32" mode="input" bus_name="" is_lvds_gpio="false" io_standard="3.3 V LVTTL / LVCMOS">
+            <efxpt:netlist_config netlist_checksum="pll_clkout.peri.db">
                 <efxpt:netlist_parameter name="IN_PIN" value="RESETN"/>
                 <efxpt:netlist_parameter name="IN_REG" value="BYPASS"/>
             </efxpt:netlist_config>
@@ -57,23 +43,23 @@
         <efxpt:global_unused_config state="input with weak pullup"/>
     </efxpt:gpio_info>
     <efxpt:pll_info>
-        <efxpt:pll name="EFX_PLL_V2_inst" pll_def="PLL_BR0" ref_clock_name="" ref_clock_freq="12.0000" multiplier="128" pre_divider="1" post_divider="2" reset_name="EFX_PLL_V2_inst~RSTN" locked_name="" is_ipfrz="false" is_bypass_lock="true">
-            <efxpt:netlist_config netlist_checksum="pll_test.peri.db">
+        <efxpt:pll name="EFX_PLL_V2_inst" pll_def="PLL_BR0" ref_clock_name="" ref_clock_freq="12.0000" multiplier="128" pre_divider="1" post_divider="2" reset_name="EFX_PLL_V2_inst~RSTN" locked_name="EFX_PLL_V2_inst~LOCKED" is_ipfrz="false" is_bypass_lock="true">
+            <efxpt:netlist_config netlist_checksum="pll_clkout.peri.db">
                 <efxpt:netlist_parameter name="CLKOUT0_EN" value="1"/>
                 <efxpt:netlist_parameter name="CLKOUT0_PIN" value="EFX_PLL_V2_inst~CLKOUT0"/>
                 <efxpt:netlist_parameter name="CLKOUT1_EN" value="0"/>
                 <efxpt:netlist_parameter name="CLKOUT2_EN" value="0"/>
                 <efxpt:netlist_parameter name="FEEDBACK_MODE" value="INTERNAL"/>
-                <efxpt:netlist_parameter name="LOCKED_PIN" value=""/>
+                <efxpt:netlist_parameter name="LOCKED_PIN" value="EFX_PLL_V2_inst~LOCKED"/>
                 <efxpt:netlist_parameter name="REFCLK_SOURCE" value="EXTERNAL"/>
                 <efxpt:netlist_parameter name="RSTN_PIN" value="EFX_PLL_V2_inst~RSTN"/>
             </efxpt:netlist_config>
-            <efxpt:output_clock name="EFX_PLL_V2_inst~CLKOUT0" number="0" out_divider="16" adv_out_phase_shift="0" conn_type="gclk"/>
+            <efxpt:output_clock name="EFX_PLL_V2_inst~CLKOUT0" number="0" out_divider="8" adv_out_phase_shift="0" conn_type="gclk"/>
             <efxpt:adv_prop ref_clock_mode="external" ref_clock1_name="" ext_ref_clock_id="3" clksel_name="" feedback_clock_name="" feedback_mode="internal"/>
         </efxpt:pll>
     </efxpt:pll_info>
     <efxpt:lvds_info/>
     <efxpt:jtag_info/>
     <efxpt:spi_flash_info/>
-    <efxpt:partial_design source="pll_test.peri.db"/>
+    <efxpt:partial_design source="pll_clkout.peri.db"/>
 </efxpt:design_db>

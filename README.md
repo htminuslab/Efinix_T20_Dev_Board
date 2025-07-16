@@ -437,8 +437,23 @@ You will now have the gatelevel primitive and the simulation primitives (like EF
 # UART0: CLK:  0x03bc37cc
 ..etc
 ```
+## 7.6 PLL Clock Output example
 
-## 7.6 Create your own design
+This example shows how to direct a PLL clock output to an I/O pin using the Unified Netlist mode. The PLL generates 48MHz from a 12MHz input clock signal.
+
+```
+EfinixLoader.exe -com 7 Example\pll_clkout\pll_clkout.hex
+```
+
+<p align="center">
+<img src="scope_clkout.jpg" alt="PLL Clock Out signal"/>
+</p>
+<p align="center">
+Figure9: PLL Clock output signal
+</p>
+
+
+## 7.7 Create your own design
 
 To create your own design you need the [Efinix Efinity Place&Route](https://www.efinixinc.com/products-efinity.html) software. You need to sign-up to get a free license. I would also suggest you check out the forum which has some good advice on various issues.
 
@@ -456,7 +471,7 @@ The T20Q100 development board does not have an external oscillator, instead the 
 </p>
 </p>
 <p align="center">
-Figure9: Clock Sources
+Figure10: Clock Sources
 </p>
 
 The generated clock out of the STM32C071 is routed to pin 7 and pin 54 of the T20Q100 FPGA. In the schematics the clock is labelled as CLK48M, however, a default value of 12MHz is used which is within the spec of the T20Q100 PLL (GPIOR_157_PLLIN) and is a more power efficient than routing 48MHz across the board.  However since the minimum PLL in clock frequency is 10MHz the clock is also routed to a standard (non-PLL) input (CLK0, pin 7).

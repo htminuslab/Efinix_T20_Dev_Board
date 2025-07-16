@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<efx:project name="pll_test" description="" last_change="1752691371" sw_version="2025.1.110.1.5" last_run_state="pass" last_run_flow="bitstream" config_result_in_sync="true" design_ood="sync" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
+<efx:project name="pll_clkout" description="" last_change="1752689596" sw_version="2025.1.110.1.5" last_run_state="pass" last_run_flow="bitstream" config_result_in_sync="true" design_ood="sync" place_ood="sync" route_ood="sync" xmlns:efx="http://www.efinixinc.com/enf_proj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efinixinc.com/enf_proj enf_proj.xsd">
     <efx:device_info>
         <efx:family name="Trion"/>
         <efx:device name="T20Q100F3"/>
         <efx:timing_model name="C4"/>
     </efx:device_info>
     <efx:design_info def_veri_version="verilog_2k" def_vhdl_version="vhdl_2008" unified_flow="true">
-        <efx:top_module name="plltest"/>
-        <efx:design_file name="pll_test.vhd" version="default" library="default"/>
+        <efx:top_module name="pll_clkout"/>
+        <efx:design_file name="pll_clkout.vhd" version="default" library="default"/>
         <efx:top_vhdl_arch name="rtl"/>
     </efx:design_info>
     <efx:constraint_info>
-        <efx:sdc_file name="pll_test.sdc"/>
+        <efx:sdc_file name="pll_clkout.sdc"/>
         <efx:inter_file name=""/>
     </efx:constraint_info>
     <efx:sim_info/>
@@ -67,13 +67,13 @@
         <efx:param name="classic_flow" value="off" value_type="e_noarg"/>
     </efx:place_and_route>
     <efx:bitstream_generation tool_name="efx_pgm">
-        <efx:param name="mode" value="active" value_type="e_string"/>
-        <efx:param name="width" value="1" value_type="e_string"/>
+        <efx:param name="mode" value="passive" value_type="e_option"/>
+        <efx:param name="width" value="1" value_type="e_option"/>
         <efx:param name="enable_roms" value="smart" value_type="e_option"/>
         <efx:param name="spi_low_power_mode" value="on" value_type="e_bool"/>
         <efx:param name="io_weak_pullup" value="on" value_type="e_bool"/>
-        <efx:param name="oscillator_clock_divider" value="DIV8" value_type="e_option"/>
-        <efx:param name="bitstream_compression" value="on" value_type="e_bool"/>
+        <efx:param name="oscillator_clock_divider" value="DIV4" value_type="e_option"/>
+        <efx:param name="bitstream_compression" value="off" value_type="e_bool"/>
         <efx:param name="enable_external_master_clock" value="off" value_type="e_bool"/>
         <efx:param name="active_capture_clk_edge" value="posedge" value_type="e_option"/>
         <efx:param name="jtag_usercode" value="0xFFFFFFFF" value_type="e_string"/>
@@ -84,6 +84,7 @@
         <efx:param name="generate_bitbin" value="off" value_type="e_bool"/>
         <efx:param name="generate_hex" value="on" value_type="e_bool"/>
         <efx:param name="generate_hexbin" value="off" value_type="e_bool"/>
+        <efx:param name="four_byte_addressing" value="off" value_type="e_bool"/>
     </efx:bitstream_generation>
     <efx:debugger>
         <efx:param name="work_dir" value="work_dbg" value_type="e_string"/>
