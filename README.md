@@ -90,7 +90,7 @@ Making your own board can be more cost-effective if you already have the necessa
 The Gerber files, schematics and part list are available in the PCB directory. You can zip up these files and send them to PCBWAY, JLCPCB etc for manufacturing. I would highly recommend you add a stencil when you order this board. Also if you have never used these manufacturers before they might give you first-time-buyer vouchers which makes the board even cheaper. 
 
 <p align="center">
-<img src="blankpcb.PNG" alt="Blank PCB Board"/>
+<img src="blank_pcb.png" alt="Blank PCB Board"/>
 </p>
 
 I assembled one of the board myself and although I did have some difficulties with dry joints and solder bridges it did work in the end. I used a hotplate and a digital microscope to assemble it.
