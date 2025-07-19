@@ -69,7 +69,9 @@ The board should be able to be hand-soldered. This means no 0201 components wher
 
 # 4. How to order a fully assembled board
 
-You can order a [fully assembled board from PCBWay](https://www.pcbway.com/project/shareproject/Efinix_T20Q100_FPGA_Development_Board_0ee8c6c9.html), this is the easiest and quickest way to get the board. The only disadvantage of ordering a fully assembled board is the minimum order quantity of 5 boards. The price [07/25] in roughly $144/£108 ($29/£22 per board), the price goes down quite quickly if you increase the order quantity. For example changing the order to 10 only increases the price to $169/£126 ($17/£13 per board) and to just $5.20/£4 if you order a 100.
+You can order a [fully assembled board from PCBWay](https://www.pcbway.com/project/shareproject/Efinix_T20Q100_FPGA_Development_Board_0ee8c6c9.html), this is the easiest and quickest way to get the board. The only disadvantage of ordering a fully assembled board is the minimum order quantity of 5 boards. 
+
+The price displayed when you select PCB+Assembly is not the price you pay (not talking about VAT+Delivery). After you add the boards to the shopping cart PCBWay calculates the real price after a short review period. 
 
 Note that the purchase is directly from PCBWAY, if something goes wrong you need to contact them directly, I have no control over this process other than making the design freely available. 
 
@@ -77,13 +79,13 @@ Note that the purchase is directly from PCBWAY, if something goes wrong you need
 <img src="readymade.png" alt="Fully Assembled Board"/>
 </p>
 
-Also note that the fully assembled board does not yet contain the ESP-PSRAM64H and any through-hole components as this will increase the assembly cost considerably. The ESP-PSRAM64H will be added after I make sure it works OK and can be purchased with reasonable delivery charges.
+The fully assembled board does not yet contain the ESP-PSRAM64H and any through-hole components as this will increase the assembly cost considerably. The ESP-PSRAM64H will be added after I make sure it works OK and can be purchased with reasonable delivery charges.
 
 Once you have received the board(s) you need to solder J5 (4 pins) and close jumper J3.
 
 # 5. How to make your own board
 
-Making your own board can be more cost-effective if you already have the necessary tools. The price from PCBWay [07/25] is $56/£42 for 5 boards ($11.20/£8.40 per board). The most expensive chip is the T20Q100F3 which is available from [DigiKey](https://www.digikey.com/en/products/detail/efinix-inc/T20Q100F3C4/19101258) for about $10,watch out for delivery charges. The remaining parts can be purchased for [LCSC Electronics](https://lcsc.com/) for very little money.
+Making your own board can be more cost-effective if you already have the necessary tools. The price from PCBWay [07/25] is roughly $60/£45 for 5 boards (excl delivery, VAT). The most expensive chip is the T20Q100F3 which is available from [DigiKey](https://www.digikey.com/en/products/detail/efinix-inc/T20Q100F3C4/19101258) for about $10, watch out for delivery charges. The remaining parts can be purchased for [LCSC Electronics](https://lcsc.com/) for very little money.
 
 The Gerber files, schematics and part list are available in the PCB directory. You can zip up these files and send them to PCBWAY, JLCPCB etc for manufacturing. I would highly recommend you add a stencil when you order this board. Also if you have never used these manufacturers before they might give you first-time-buyer vouchers which makes the board even cheaper. 
 
