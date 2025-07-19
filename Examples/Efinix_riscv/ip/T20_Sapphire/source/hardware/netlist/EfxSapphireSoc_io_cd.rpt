@@ -1,0 +1,12 @@
+io_systemClk sampled by 
+io_asyncReset sampled by 
+io_jtag_tdi sampled by io_jtag_tck
+io_jtag_tms sampled by io_jtag_tck
+io_jtag_tdo clocked by io_jtag_tck
+io_jtag_tck sampled by 
+io_systemReset clocked by io_systemClk
+system_uart_0_io_txd clocked by io_systemClk
+system_uart_0_io_rxd sampled by 
+system_gpio_0_io_read sampled by io_systemClk
+system_gpio_0_io_write clocked by io_systemClk
+system_gpio_0_io_writeEnable clocked by io_systemClk

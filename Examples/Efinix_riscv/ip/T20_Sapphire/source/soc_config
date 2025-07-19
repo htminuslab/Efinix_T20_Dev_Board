@@ -1,0 +1,22 @@
+--ramHex "H:\GitHub\Efinix_T20_Dev_Board\Examples\Efinix_riscv\embedded_sw/T20_Sapphire/software/standalone/uart/uartEchoDemo/build/uartEchoDemo.hex"
+--Fpu false
+--axiAEnable false
+--PeripheralClock false
+--uart name=system_uart_0_io,address=0x010000,interruptId=1,fifoDepth=64
+--reducedCsr
+--cpuCount 1
+--Atomic false
+--lowArea 5
+--systemFrequency 100000000
+--ddrAEnable false
+--apbBridgeAddress 0xf8000000
+--noMulDiv
+--noBarrelShifter
+--Linux false
+--L1D false
+--onChipRamAddress 0xf9000000
+--onChipRamSize 0x10000
+--gpio name=system_gpio_0_io,address=0x015000,width=4,interrupts="0->12;1->13"
+--softTap true
+--L1I false
+--FpuDouble false

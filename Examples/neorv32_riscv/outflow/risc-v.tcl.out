@@ -1,0 +1,2 @@
+DEBUG    : Initialising Efx::ConcurrencyControl with 24 threads [Debug]
+INFO     : --max_threads set to 24 

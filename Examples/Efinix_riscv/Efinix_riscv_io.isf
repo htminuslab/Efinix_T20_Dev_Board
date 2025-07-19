@@ -1,0 +1,63 @@
+# Efinity Interface Configuration
+# Version: 2025.1.110.1.5
+# Date: 2025-07-19 14:38
+#
+# Copyright (C) 2013 - 2025 Efinix Inc. All rights reserved.
+#
+# Device: T20Q100F3
+# Package: 100-pin QFP (final)
+# Project: Efinix_riscv
+# Configuration mode: passive (x1)
+# Timing Model: C4 (final)
+
+
+# Device setting
+design.set_device_property("1A_1B_1C","VOLTAGE","3.3","IOBANK")
+design.set_device_property("1D_1E","VOLTAGE","3.3","IOBANK")
+design.set_device_property("3A","VOLTAGE","3.3","IOBANK")
+design.set_device_property("3B_3C","VOLTAGE","3.3","IOBANK")
+design.set_device_property("3D_3E","VOLTAGE","3.3","IOBANK")
+design.set_device_property("4A","VOLTAGE","3.3","IOBANK")
+design.set_device_property("4B","VOLTAGE","3.3","IOBANK")
+design.set_device_property("BR","VOLTAGE","1.2","IOBANK")
+design.set_device_property("TL","VOLTAGE","1.2","IOBANK")
+design.set_device_property("TR","VOLTAGE","1.2","IOBANK")
+design.set_device_property("cfg","CBSEL_PIN","cfg_CBSEL","RU")
+design.set_device_property("cfg","CLK_PIN","","RU")
+design.set_device_property("cfg","CONFIG_PIN","cfg_CONFIG","RU")
+design.set_device_property("cfg","ENA_PIN","cfg_ENA","RU")
+design.set_device_property("cfg","ERROR_PIN","cfg_ERROR","RU")
+design.set_device_property("cfg","INVERT_CLK_EN","0","RU")
+design.set_device_property("cfg","RECONFIG_EN","0","RU")
+
+# Create instance
+design.create_pll_input_clock_gpio("CLK")
+design.create_input_gpio("RESETN")
+design.create_input_gpio("RX")
+design.create_output_gpio("TX")
+design.create_block("EFX_PLL_V2_inst","PLL")
+
+# Set property, non-defaults
+design.set_property("EFX_PLL_V2_inst","CLKOUT0_EN","1","PLL")
+design.set_property("EFX_PLL_V2_inst","CLKOUT1_EN","0","PLL")
+design.set_property("EFX_PLL_V2_inst","CLKOUT2_EN","0","PLL")
+design.set_property("EFX_PLL_V2_inst","REFCLK_SOURCE","EXTERNAL","PLL")
+design.set_property("EFX_PLL_V2_inst","CLKOUT0_CONN_TYPE","gclk","PLL")
+design.set_property("EFX_PLL_V2_inst","CLKOUT0_DIV","8","PLL")
+design.set_property("EFX_PLL_V2_inst","CLKOUT0_PHASE","0","PLL")
+design.set_property("EFX_PLL_V2_inst","CLKOUT0_PIN","EFX_PLL_V2_inst~CLKOUT0","PLL")
+design.set_property("EFX_PLL_V2_inst","EXT_CLK","EXT_CLK1","PLL")
+design.set_property("EFX_PLL_V2_inst","LOCKED_PIN","","PLL")
+design.set_property("EFX_PLL_V2_inst","M","128","PLL")
+design.set_property("EFX_PLL_V2_inst","N","1","PLL")
+design.set_property("EFX_PLL_V2_inst","O","2","PLL")
+design.set_property("EFX_PLL_V2_inst","REFCLK_FREQ","12.0","PLL")
+design.set_property("EFX_PLL_V2_inst","RSTN_PIN","EFX_PLL_V2_inst~RSTN","PLL")
+design.set_property("EFX_PLL_V2_inst","FEEDBACK_MODE","INTERNAL","PLL")
+
+# Set resource assignment
+design.assign_pkg_pin("CLK","54")
+design.assign_pkg_pin("RESETN","4")
+design.assign_pkg_pin("RX","3")
+design.assign_pkg_pin("TX","22")
+design.assign_resource("EFX_PLL_V2_inst","PLL_BR0","PLL")
