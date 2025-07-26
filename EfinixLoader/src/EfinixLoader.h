@@ -9,7 +9,7 @@
 #pragma once
 
 #define  MAJOR_VERSION 	0
-#define  MINOR_VERSION 	01
+#define  MINOR_VERSION 	02
 
 #include <stdio.h>	
 #include <ctype.h>   

@@ -2,7 +2,8 @@
 //
 //  STM32C071 Efinix Serial to SPI Hex Loader 
 //                                        
-//  Copyright (C) 2025 HT-LAB                                                                                    
+//  Copyright (C) 2025 HT-LAB  
+//  https://github.com/htminuslab/Efinix_T20_Dev_Board                                                                                  
 //
 //  The frame format consist of 1 SYNC byte, 1 CMD/Sequence byte, 2^n databytes and 1 CRC8 byte
 //  Sync is 0x7E 
@@ -15,6 +16,7 @@
 //                                                                           
 //  Date		Revision	Changes 
 //  03-May-25   0.1         First version, upload to FPGA RAM
+//  20-July-25  0.2         Added Flash support
 //-------------------------------------------------------------------------------------------------
 #include "EfinixLoader.h"
 
@@ -24,8 +26,11 @@
 //-------------------------------------------------------------------------------------------------				
 int  	debug=0;                     								// debug display messages enabled
 bool 	quiet=false;													
+bool    useflash=false;												// Default upload bitstream to FPGA	
 int     sequence=0;  
 
+
+uint8_t dumpbuffer[DUMP_LENGTH];									// Reading Flash/PSRAM buffer
 
 //-------------------------------------------------------------------------------------------------
 // Main Entry 
@@ -53,7 +58,7 @@ int main(int argc,char **argv)
 	//---------------------------------------------------------------------------------------------
 	while((argc-1)>=i)	{		
 		if (strcmp(argv[i],"-q")==0) {								// quiet mode
-			quiet=true;												// Do not display headers and stuff
+			quiet=true;												// Do not display headers
 			i++;
 		
 		} else if (strcmp(argv[i],"-d")==0) {						// Debug Mode
@@ -73,20 +78,51 @@ int main(int argc,char **argv)
                 else usage_exit();            
             i++;
 
-        } else if (strcmp(argv[i],"-fpgabaudrate")==0) {            // Specify STM to FPGA_BR 
+        } else if (strcmp(argv[i],"-fpgabaudrate")==0) {            // Specify STM to FPGA baudrate 
             if ((argc-1)>i) {
 				fpgabaudrate=(int)(atoi(argv[++i]));      
 				txframe[1]=TYPE_SET_BAUDRATE;				
 			} else usage_exit();            
             i++;
 			
+		} else if (strcmp(argv[i],"-flash")==0) {	
+			txframe[1]=TYPE_START_FLASH;		
+			useflash=true;											// Upload to flash instead of RAM
+			i++;				
+			
 		} else if (strcmp(argv[i],"-status")==0) {								
-			txframe[1]=TYPE_DEBUG_STATUS;							// Read status byte
+			txframe[1]=TYPE_DEBUG_STATUS;							// Read status word
 			i++;	
 			
 		} else if (strcmp(argv[i],"-reset")==0) {								
 			txframe[1]=TYPE_TOGGLE_CRESET;							// Toggle FPGA CRESET pin
 			i++;
+
+		} else if (strcmp(argv[i],"-chiperase")==0) {				// Erase T20Q100F3 Flash Chip					
+			txframe[1]=TYPE_FLASH_CHIP_ERASE;							
+			i++;	
+		} else if (strcmp(argv[i],"-sectorerase")==0) {				// Erase T20Q100F3 Flash sector, set address pointer first					
+			txframe[1]=TYPE_FLASH_SECTOR_ERASE;							
+			i++;	
+		} else if (strcmp(argv[i],"-resetaddr")==0) {				// Clear 24bits flash/psram address pointer\n");
+			txframe[1]=TYPE_FLASH_CLEAR_ADDR;							
+			i++;
+		} else if (strcmp(argv[i],"-nextpage")==0) {				// Increase address pointer by 256\n");
+			txframe[1]=TYPE_FLASH_INC_PAGE;							
+			i++;
+		} else if (strcmp(argv[i],"-nextsector")==0) {				// Increase address pointer by 4096\n");
+			txframe[1]=TYPE_FLASH_INC_64K;							
+			i++;
+		} else if (strcmp(argv[i],"-next64k")==0) {					// Increase address pointer by 65536\n");	
+			txframe[1]=TYPE_FLASH_CHIP_ERASE;							
+			i++;	
+		
+		} else if (strcmp(argv[i],"-readflash")==0) {								
+			txframe[1]=TYPE_DUMP_FLASH;								// Read 256 bytes from FLASH
+			i++;	
+		} else if (strcmp(argv[i],"-readpsram")==0) {								
+			txframe[1]=TYPE_DUMP_PSRAM;								// Read 256 bytes from PSRAM
+			i++;		
 			
         } else if (strcmp(argv[i],"-setpina")==0) {  				// PortA Number, 0/1              												
             if ((argc-2)>i) {
@@ -219,9 +255,11 @@ int main(int argc,char **argv)
 		}	
 	} 
      
-	qprintf("\n***  Efinix Serial FPGA Hex loader  ***\n");
-	qprintf(  "***     Ver %d.%d (c)2025 HT-LAB      ***\n", MAJOR_VERSION,MINOR_VERSION);
-	qprintf(  "***  https://github.com/htminuslab  ***\n");
+    qprintf("\n**************************************************\n");
+	qprintf(  "***        Efinix SPI FPGA Hex loader          ***\n");
+    qprintf(  "***          Ver %d.%d (c)2025 HT-LAB            ***\n", MAJOR_VERSION,MINOR_VERSION);
+    qprintf(  "*** github.com/htminuslab/Efinix_T20_Dev_Board ***\n");
+	qprintf(  "**************************************************\n");
 
 	qprintf("\nComport            : %s %d,N,8,1\n",comport,baudrate);
 
@@ -242,18 +280,23 @@ int main(int argc,char **argv)
 			status=write_frame(port,txframe,CMD_FRAME_LENGTH,0,1000);// Request Status
 			printf("%s\n",status2str(status>>8));
 			break;
+
 		case TYPE_TOGGLE_CRESET :
 			sequence=0;
 			status=write_frame(port,txframe,CMD_FRAME_LENGTH,0,1000);// Issue FPGA reset
 			printf("Toggle Reset, %s\n",status2str(status>>8));
-			break;				
-		case TYPE_WRITE_PIN : 
-		case TYPE_PIN_DIRECTION :
-		case TYPE_PIN_RESISTOR :
-		case TYPE_ALT_FUNCTION :
-			status=write_frame(port,txframe,CMD_FRAME_LENGTH,0,1000);// Change Pin State	
-			//printf("Set Pin %c%d to %d\n",(txframe[2]&0x30)==0x10?'A':(txframe[2]&0x30)==0x20?'B':'C',txframe[2]&0xF,txframe[2]>>7);
-			break;
+			break;	
+			
+		case TYPE_DUMP_FLASH :
+			if ((write_frame(port,txframe,CMD_FRAME_LENGTH,0,1000)&0x30)==STATUS_ACK) {				
+				for (int i=0;i<DUMP_LENGTH;i++) {
+    				if (i%16==0) printf("\n%02x: ",i);
+					printf("%02x ",dumpbuffer[i]);
+    			}
+    			printf("\n\n");	
+			}
+			break;	
+			
 		case TYPE_READ_PORT : 
 			status=write_frame(port,txframe,CMD_FRAME_LENGTH,0,1000);
 			printf("Reading port %c\n",(txframe[2]&0x30)==0x10?'A':(txframe[2]&0x30)==0x20?'B':'C');
@@ -284,7 +327,7 @@ int main(int argc,char **argv)
 			break;	
 		
 		default:
-			printf("Unknown command %0x02\n",txframe[1]);			
+			status=write_frame(port,txframe,CMD_FRAME_LENGTH,0,1000);	
 	}
 
 	close_comport(port);
@@ -316,7 +359,7 @@ void upload_bitstream(HANDLE port,char * hexfilename)
     sequence=0;
 	if((fp=fopen(hexfilename,"rt"))!=NULL) {
 		qprintf("Reading Hex file   : %s\n",hexfilename);
-		qprintf("Upload to          : FPGA RAM\n");	
+		qprintf("Upload to          : %s\n",useflash?"FPGA Flash":"FPGA RAM");	
 		
 		if (stat(hexfilename, &st) == 0) {
 			qprintf("File size is       : %lld bytes\n\n",(long long)st.st_size);
@@ -327,8 +370,13 @@ void upload_bitstream(HANDLE port,char * hexfilename)
 		}
 
 		txframe[0]=SYNC_CHAR;
-		txframe[1]=TYPE_START_DATA;
-		timeout=1000;
+		if (useflash){				
+			txframe[1]=TYPE_START_FLASH;							// Start upload bitstream image to FPGA
+			timeout=MAX_BUSY_RETRY*1000;							// 5ms max timeout
+		} else {
+			txframe[1]=TYPE_START_DATA;
+			timeout=1000;
+		}
 
 		while (fgets(line, MAX_LINE, fp)) {							// 2 hex characters per line
 			sscanf(line,"%02hhx",&txframe[bc+2]);
@@ -339,7 +387,11 @@ void upload_bitstream(HANDLE port,char * hexfilename)
 				sequence=(sequence+1)&0x3;
 				
 				framecount++;
-				txframe[1]=(sequence<<6)|TYPE_FPGA_DATA;		// Next frame is fpga data
+				if (useflash){
+					txframe[1]=(sequence<<6)|TYPE_FLASH_DATA;		// Next frame is flash data
+				} else {
+					txframe[1]=(sequence<<6)|TYPE_FPGA_DATA;		// Next frame is fpga data
+				}
 				progress+=addpercent;
 				printf("Uploading(%d,%d) %3.1lf%%\r",(status>>9)&1,(status>>10)&1,progress);				
 			}	
@@ -353,9 +405,12 @@ void upload_bitstream(HANDLE port,char * hexfilename)
 		}
 		
 		if (bc) {													// Remaining bytes in a frame
-			for (int j=bc;j<DATA_LENGTH;j++) txframe[j+2]=0;		// Not necessary			
-			txframe[1]=(sequence<<6)|TYPE_FPGA_DATA;			
-						
+			for (int j=bc;j<DATA_LENGTH;j++) txframe[j+2]=0;					
+			if (useflash){
+				txframe[1]=(sequence<<6)|TYPE_FLASH_DATA;			
+			} else {
+				txframe[1]=(sequence<<6)|TYPE_FPGA_DATA;			
+			}							
 			if (write_frame(port,txframe,DATA_FRAME_LENGTH,0,timeout)==STATUS_NACK) goto giveup;
 			sequence=(sequence+1)&0x3;
 			
@@ -363,18 +418,41 @@ void upload_bitstream(HANDLE port,char * hexfilename)
 			
 			for (int j=0;j<DATA_LENGTH;j++) txframe[j+2]=0xFF;		// Empty frame	
 
+			if (useflash){
+				//---------------------------------------------------------------------------------
+				// For Flash length should be rounded up to T20_FLASH_PAGE_SIZE (256/16) data frames
+				//---------------------------------------------------------------------------------
+				qprintf("Total %d frames send\n",framecount);
+				if (framecount%(T20_FLASH_PAGE_SIZE/DATA_LENGTH)){
+					qprintf("Need an extra %d frames to get to %d\n", framecount%(T20_FLASH_PAGE_SIZE/DATA_LENGTH),T20_FLASH_PAGE_SIZE/DATA_LENGTH);					
+				}
+				
+				for (int j=(framecount%(T20_FLASH_PAGE_SIZE/DATA_LENGTH));j<(T20_FLASH_PAGE_SIZE/DATA_LENGTH);j++){										
+					txframe[1]=(sequence<<6)|TYPE_FLASH_DATA;								
+					if (write_frame(port,txframe,DATA_FRAME_LENGTH,0,timeout)==STATUS_NACK) goto giveup;
+					sequence=(sequence+1)&0x3;
+				}			
+				
+			} else {
+				//---------------------------------------------------------------------------------
+				// For FPGA Send 1 extra frame to comply with the min 100 dummy bits end sequence
+				//---------------------------------------------------------------------------------										
+				txframe[1]=(sequence<<6)|TYPE_FPGA_DATA;			// Next frame is data					
+				if (write_frame(port,txframe,DATA_FRAME_LENGTH,0,timeout)==STATUS_NACK) goto giveup;
+				sequence=(sequence+1)&0x3;
 
-			//---------------------------------------------------------------------------------
-			// For FPGA Send 1 extra frame to comply with the min 100 dummy bits end sequence
-			//---------------------------------------------------------------------------------										
-			txframe[1]=(sequence<<6)|TYPE_FPGA_DATA;			// Next frame is data					
-			if (write_frame(port,txframe,DATA_FRAME_LENGTH,0,timeout)==STATUS_NACK) goto giveup;
-			sequence=(sequence+1)&0x3;
-		
+			}			
 		}
 		txframe[1]=TYPE_END_PROGRAMMING;
 		if (write_frame(port,txframe,CMD_FRAME_LENGTH,0,timeout)==STATUS_NACK) goto giveup;	
 		
+		//-----------------------------------------------------------------------------------------
+		// For flash we toggle the CRESET_N pin to load the flash into ram
+		//-----------------------------------------------------------------------------------------
+		if (useflash){
+			txframe[1]=TYPE_TOGGLE_CRESET;
+			if (write_frame(port,txframe,CMD_FRAME_LENGTH,0,timeout)==STATUS_NACK) goto giveup;	
+		}
 	} else {
         printf("\nFailed to open Hex file %s\n",hexfilename);
     }	
@@ -405,10 +483,9 @@ uint16_t write_frame(HANDLE port, uint8_t  *txframe, int txlength, int chardelay
 		printf("\n");		
 	}
 	
-	start_time = clock();											// Time-out	
+	start_time = clock();											// Start Time-out	
 	while (true) {
-		status=receive_frame(port);
-		//printf("\nStatus=%04x ",status);
+		status=receive_frame(port);									// Wait for ACK/NACK frame
 		switch (status&0x30) {
 			case STATUS_WAIT :
 				if (clock() > start_time + ms_timeout) {			// 1000 ms
@@ -426,23 +503,29 @@ uint16_t write_frame(HANDLE port, uint8_t  *txframe, int txlength, int chardelay
 					return STATUS_NACK;
 				}
 				break;	
-			case STATUS_ACK	: 
-				//printf(" status=0x%04x ",status);
+			case STATUS_ACK	: 										// Ack received
+				if (status&STATUS_BUSY) {							// Change command to busy check (TODO make recursive)
+					sequence=(sequence+1)&0x3;
+					txframe[1]=(sequence<<6)|TYPE_CHECK_BUSY;	
+					crc8=updatecrc8(txframe[1],0x55);
+					txframe[3]=updatecrc8(txframe[2],crc8);
+					write_comport_array(port,txframe,CMD_FRAME_LENGTH); 
+				}
 				return status;
 		}		
 	}
 }
 
 //-------------------------------------------------------------------------------------------------
-// Receive frame from node071 and return status word
-// Frame fixed to 4 bytes
+// Receive frame from node071 and return status word unless dump command
 //-------------------------------------------------------------------------------------------------
 uint16_t receive_frame(HANDLE port)
 {
 	unsigned char byte;
 	static uint8_t crc8=0x55;
+	static int datalength=0;
 	
-	enum RXFSM_TYPE { FSM_RXSYNC, FSM_RXDATA1, FSM_RXDATA2, FSM_RXCRC };
+	enum RXFSM_TYPE { FSM_RXSYNC, FSM_RXTYPE, FSM_RXSTATUS, FSM_RXDUMP, FSM_RXCRC };
     static enum RXFSM_TYPE fsm = FSM_RXSYNC;  
 	
 	static uint16_t status=0;
@@ -453,19 +536,31 @@ uint16_t receive_frame(HANDLE port)
 		case FSM_RXSYNC:
 			if (byte==SYNC_CHAR) {
 				crc8=0x55;
-				fsm=FSM_RXDATA1;
+				fsm=FSM_RXTYPE;
 			}
 			break;
-		case FSM_RXDATA1: 
-			status=byte;											// LS status
+			
+		case FSM_RXTYPE: 
+			status=byte;											// LS status+Type
 			crc8=updatecrc8(byte,crc8);
-			fsm=FSM_RXDATA2;
+			if ((status&STATUS_DUMP_FLASH) || (status&STATUS_DUMP_PSRAM)) {
+				datalength=0;
+				fsm=FSM_RXDUMP;
+			} else fsm=FSM_RXSTATUS;								// Read second status byte and exit
 			break;
-		case FSM_RXDATA2: 
+			
+		case FSM_RXDUMP :											// Read 256 bytes	
+			crc8=updatecrc8(byte,crc8);
+			dumpbuffer[datalength++]=byte;
+			if (datalength==DUMP_LENGTH) fsm=FSM_RXCRC;
+			break;
+			
+		case FSM_RXSTATUS: 
 			status|=(((uint16_t)byte)<<8);							// MS status
 			crc8=updatecrc8(byte,crc8);
 			fsm=FSM_RXCRC;
 			break;		
+			
 		case FSM_RXCRC:
 			fsm=FSM_RXSYNC;		
 			if (crc8==byte) return status;
@@ -540,14 +635,27 @@ size_t strlcat(char *dst,const char *src, size_t size)
 
 void usage_exit(void)
 {
-    printf("\n***  Efinix SPI FPGA Hex loader   ***\n");
-    printf(  "***   Ver %d.%d (c)2025 HT-LAB      ***\n", MAJOR_VERSION,MINOR_VERSION);
-    printf(  "*** https://github.com/htminuslab ***\n");
+    printf("\n**************************************************\n");
+	printf(  "***        Efinix SPI FPGA Hex loader          ***\n");
+    printf(  "***          Ver %d.%d (c)2025 HT-LAB            ***\n", MAJOR_VERSION,MINOR_VERSION);
+    printf(  "*** github.com/htminuslab/Efinix_T20_Dev_Board ***\n");
+	printf(  "**************************************************\n");
     printf("\nUsage                : EfinixLoader <options> fpgafile.hex\n");
     printf("\nOptions:\n");
     printf("-q                   : quiet, must be specified first in the options list\n");  
     printf("-com portnumber      : Comport, 1.. default to \"%s\"\n",DEFAULT_COMPORT);
     printf("-baud int            : Baudrate, default is %d\n",DEFAULT_BAUDRATE);
+	printf("-flash               : Write bitstream to FLASH memory, default to RAM\n");
+    
+	printf("-readflash           : Read 256 bytes from flash\n");
+	printf("-readpsram           : Read 256 bytes from psram\n");
+	
+	printf("-chiperase           : Erase Flash\n");	
+	printf("-resetaddr           : Reset 24bits flash/psram address pointer to 0\n");
+	printf("-nextpage            : Increase address pointer by 256\n");
+	printf("-nextsector          : Increase address pointer by 4096\n");
+	printf("-next64k             : Increase address pointer by 65536\n");	
+	
 	printf("-fpgabaudrate        : Set the baudrate between STM32 and FPGA, default is 115200\n");
     printf("-status              : Read Status byte\n");
     printf("-reset               : Toggle FPGA CRESET line\n");
@@ -566,6 +674,8 @@ void usage_exit(void)
     printf("-readporta           : Read PortA\n");
     printf("-readportb           : Read PortB\n");
     printf("-readportc           : Read PortC\n");
+	
+
     printf("\n                     : press ESC to quit\n");
     exit(1);
 }

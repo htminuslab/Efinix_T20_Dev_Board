@@ -238,7 +238,7 @@ Figure5: PLL Clock output signal
 </p>
 
 
-## 7.7 Efinix Sapphire core
+## 7.7 Efinix Sapphire Lite core
 
 Efinix has it own fully configurable RISC-V core based on the [award winning](https://riscv.org/blog/2018/12/risc-v-softcpu-contest-highlights/) [VexRISCV](https://github.com/SpinalHDL/VexRiscv) core. In addition to the core Efinix provide an easy to use Eclipse IDE. For this demo I selected the "lite" configuration with a single UART and the "uartEchodemo" example pre-loaded into memory (64KByte). To reduce the number of files I have stripped most of the IP files and just kept the files required to synthesise the core and to run RTL/Gatelevel sim. Re-generating the full core is easy to.
 
@@ -272,7 +272,7 @@ EFX_PLL_V2_inst~CLKOUT0    9.430        106.045         (R-R)
 To load the design, start Teraterm(115200,N,8,1) or any other terminal program and execute:
 
 ```
-EfinixLoader.exe -com 7 Examples\Efinix_riscv\Efinix_riscv.hex
+EfinixLoader.exe -com 7 Examples\Efinix_riscv_lite\Efinix_riscv.hex
 ```
 
 <p align="center">

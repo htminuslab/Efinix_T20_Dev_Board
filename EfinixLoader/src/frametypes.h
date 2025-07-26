@@ -20,6 +20,22 @@
 #define CMD_DATA_LENGTH				1								// Optional Byte
 #define CMD_FRAME_LENGTH            (1+1+CMD_DATA_LENGTH+1)			// SYNC-CMD-CRC
 
+#define DUMP_LENGTH					256								// FLASH/PSRAM Dump data length
+#define DUMP_FRAME_LENGTH           (1+1+DUMP_LENGTH+1)				// SYNC-STATUS-DUMP_DATA-CRC
+
+//--------------------------------------------------------------------------------------------------
+// Flash defines
+//--------------------------------------------------------------------------------------------------
+#define T20_FLASH_SIZE              (1024 * 1024 * 2)        		// 2Mbyte
+#define T20_FLASH_PAGE_SIZE         256								// Assume compatible with Winbond W25Qxx 256 Page program
+#define T20_FLASH_SECTOR_SIZE       4096							// Assume compatible with Winbond W25Qxx minimum erase size
+#define MAX_BUSY_RETRY				5								// Max 5ms for 1 page write, if busy=1 send NACK
+
+
+#if T20_FLASH_PAGE_SIZE != DUMP_LENGTH
+	#error "T20_FLASH_PAGE_SIZE and DUMP_LENGTH must be equal!"
+#endif
+
 
 //--------------------------------------------------------------------------------------------------
 // Flash defines
@@ -46,12 +62,21 @@
 #define TYPE_PIN_RESISTOR			0x09							// Enable Pull-up/Pull-down
 #define TYPE_ALT_FUNCTION           0x0A							
 
+#define TYPE_FLASH_CLEAR_ADDR		0x0B						    // Clear 24bits address
+#define TYPE_FLASH_INC_PAGE			0x0C							// Increase address by 256
+#define TYPE_FLASH_INC_SECTOR		0x0D							// Increase address by 4096
+#define TYPE_FLASH_INC_64K			0x0E							// Increase address by 65536
+#define TYPE_CHECK_BUSY             0x17							// Read Flash Busy bit
+#define TYPE_FLASH_CHIP_ERASE		0x18							// Issue Chip erase, command 0xC7
+#define TYPE_FLASH_SECTOR_ERASE		0x19							// Issue sector erase, command 0x20
+
 #define TYPE_ENABLE_UART			0x20							// Connect STM32 UART_TX to GPIO40
 #define TYPE_DISABLE_UART			0x21							// Change STM32 UART_TX to input so that GPIO40 is free
 #define TYPE_SET_BAUDRATE			0x22							// Set UART Baudrate between STM32 to FPGA
 
 #define	TYPE_DEBUG_STATUS 			0x30
-
+#define TYPE_DUMP_FLASH             0x35							// Dump 256 bytes from FLASH
+#define TYPE_DUMP_PSRAM             0x36							// Dump 256 bytes from PSRAM
 //#define TYPE_SET_BAUDRATE			0x80							// TBC
 
 #define TYPE_PORTA                  0x10							// 0001000
@@ -59,13 +84,26 @@
 #define TYPE_PORTC                  0x30							// 0001000
 
 
+
+
 //--------------------------------------------------------------------------------------------------
-// TXFRAME type send back to EfinixLoader
+// TXFRAME type wait bit 0
+//--------------------------------------------------------------------------------------------------
+#define STATUS_BUSY					0x01							// xxxx-xxx1
+
+//--------------------------------------------------------------------------------------------------
+// TXFRAME dump bits bit 2:1
+//--------------------------------------------------------------------------------------------------
+#define STATUS_DUMP_FLASH			0x02							// xxxx-x01x
+#define STATUS_DUMP_PSRAM			0x04							// xxxx-x10x
+
+//--------------------------------------------------------------------------------------------------
+// TXFRAME type bit 5:4 send back to EfinixLoader
 //--------------------------------------------------------------------------------------------------
 #define STATUS_NACK					0x10							// xx01-xxxx
 #define STATUS_ACK					0x20							// xx10-xxxx
 #define STATUS_WAIT					0x30							// xx11-xxxx
-#define STATUS_BUSY					0x01							// xxxx-xxx1
+
 
 //-------------------------------------------------------------------------------------------------
 // Status bit positions in second status byte

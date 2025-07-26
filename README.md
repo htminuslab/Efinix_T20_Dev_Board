@@ -15,6 +15,7 @@ This repository described a small low-cost Efinix T20Q100 FPGA development board
 
 - FPGA [Efinix T20Q100F3C4](https://www.efinixinc.com/shop/t20.php), 19728 Luts, 1020Kbit Memory, 36 Multipliers, 5 PLL, 16Mbit Flash
 - Easy programmable and powered via USB-C, no drivers required!
+- Programs can be loaded into Ram or Flash memory
 - 8..48MHz clock (PLL input), optional 32KHz Clock
 - 47<sup>1</sup> 3.3volt I/O pins divided over 3 IDC connectors
 - 17 FPGA pins can be toggled/monitored via USB-C
@@ -22,6 +23,7 @@ This repository described a small low-cost Efinix T20Q100 FPGA development board
 - *[TBC] Optional 8MByte ESP-PSRAM64H memory chip*
 - On-Board tiny STM32C071 microcontroller to control the FPGA
 - Small, less than credit card size (71mm x 48mm)
+- Sapphire RISC-V core @106MHz using just 20% of the FPGA LUTs
 
 <sup>1</sup> 1.8volt LVDS is not supported
 
@@ -192,7 +194,7 @@ Note the STM32 microcontroller are a popular choice for makers and hence you can
 
 # 6.1 Test we can communicate with the microcontroller
 
-After programming the on-board microcontroller we can test the communication by using the EfinixLoader program. The EfinixLoader is a simple program which takes an FPGA bitstream file (in hex) and uploads it to the Efinix T20Q100 FPGA. 
+After programming the on-board microcontroller we can test the communication by using the EfinixLoader program. The EfinixLoader is a simple program which takes an FPGA bitstream file (in hex) and uploads it to the Efinix T20Q100 FPGA (or its internal Flash). 
 
 **Navigate to the EfinixLoader directory for more information and source code for this loader.**
 
@@ -201,9 +203,11 @@ For a quick test you can issue the following command:
 ```
 h:\GitHub\Efinix_T20_Dev_Board\EfinixLoader>EfinixLoader.exe -com 7 -status
 
-***  Efinix Serial FPGA Hex loader  ***
-***     Ver 0.1 (c)2025 HT-LAB      ***
-***  https://github.com/htminuslab  ***
+**************************************************
+***        Efinix SPI FPGA Hex loader          ***
+***         Ver 0.2 (c)2025 HT-LAB             ***
+*** github.com/htminuslab/Efinix_T20_Dev_Board ***
+**************************************************
 
 Comport            : \\.\COM7 921600,N,8,1
 cdone=0 NSTATUS=1  >> Ready for Programming <<
@@ -246,6 +250,10 @@ A second clock of 32KHz is available but not yet implemented. The 32KHz clock ha
  
 
 See **examples\pll_test** for a unified flow example. Note that the current Efinity 2025.1.110 version does seems to have some gremlins when it comes to the PLL. I have observed some strange behaviour where the PLL was not recognised in the source until I added the SDC file. If you hit any issues post it on the Efinix Mailing list, there some good Efinix AE's on that list.
+
+## 8.2 Internal Flash
+
+The T20Q100F3 has 16Mbit of internal flash which can be used to load the FPGA during power up and/or for internal storage. The Efinixloader can be used to program the flash and to read the contents back. Each image requires 663Kbyte, thus about 1.4MByte is available for user code. 
 
 ## 8.2 LEDs
 
