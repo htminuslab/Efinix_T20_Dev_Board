@@ -129,6 +129,32 @@ Once you have the bootloader you can upload a file and execute it. For this make
 Figure4: Teraterm running NEORV32 bootloader
 </p>
 
+Here are the push-button synthesis results
+
+```
+---------- Resource Summary (begin) ----------
+Inputs: 5 / 163 (3.07%)
+Outputs: 6 / 347 (1.73%)
+Clocks: 2 / 16 (12.50%)
+Logic Elements: 5736 / 19728 (29.08%)
+	LE: LUTs/Adders: 4378 / 19728 (22.19%)
+	LE: Registers: 2379 / 13920 (17.09%)
+Memory Blocks: 199 / 204 (97.55%)
+Multipliers: 0 / 36 (0.00%)
+---------- Resource Summary (end) ----------
+---------- 1. Clock Frequency Summary (begin) ----------
+User target constrained clocks
+      Clock Name        Period (ns)  Frequency (MHz)   Waveform             Targets
+EFX_PLL_V2_inst~CLKOUT0    15.957        62.668      {0.000 7.978} {EFX_PLL_V2_inst~CLKOUT0}
+
+Maximum possible analyzed clocks frequency
+      Clock Name        Period (ns)  Frequency (MHz)     Edge
+EFX_PLL_V2_inst~CLKOUT0    13.089        76.400         (R-R)
+
+Geomean max period: 13.089
+---------- Clock Frequency Summary (end) ---------------
+```
+
 ## 7.5.1 RISC-V RTL Simulation
 
 I have also created a simple batch file for Questa/Modelsim to perform rtl and gatelevel simulation. Navigate to the sim directory and execute run_questa.bat in a CMD prompt, the output should be something like:
@@ -240,7 +266,7 @@ Figure5: PLL Clock output signal
 
 ## 7.7 Efinix Sapphire Lite core
 
-Efinix has it own fully configurable RISC-V core based on the [award winning](https://riscv.org/blog/2018/12/risc-v-softcpu-contest-highlights/) [VexRISCV](https://github.com/SpinalHDL/VexRiscv) core. In addition to the core Efinix provide an easy to use Eclipse IDE. For this demo I selected the "lite" configuration with a single UART and the "uartEchodemo" example pre-loaded into memory (64KByte). To reduce the number of files I have stripped most of the IP files and just kept the files required to synthesise the core and to run RTL/Gatelevel sim. Re-generating the full core is easy to.
+Efinix has it own fully configurable RISC-V core based on the [award winning](https://riscv.org/blog/2018/12/risc-v-softcpu-contest-highlights/) [VexRISCV](https://github.com/SpinalHDL/VexRiscv) core. In addition to the core Efinix provide an easy to use Eclipse IDE. For this demo I selected the "lite" configuration with a single UART and the "uartEchodemo" example pre-loaded into memory (64KByte). To reduce the number of files I have stripped most of the IP files and just kept the files required to synthesise the core and to run RTL/Gatelevel sim. Re-generating the full core and restoring all the files is easy to do.
 
 Here are some push-button synthesis results (all default values used in Efinity)
 
@@ -260,14 +286,14 @@ Multipliers:        0 / 36          (0.00%)
 User target constrained clocks
       Clock Name        Period (ns)  Frequency (MHz)   Waveform             Targets
 EFX_PLL_V2_inst~CLKOUT0    10.000        100.000     {0.000 5.000} {EFX_PLL_V2_inst~CLKOUT0}
-
 Maximum possible analyzed clocks frequency
       Clock Name        Period (ns)  Frequency (MHz)     Edge
-EFX_PLL_V2_inst~CLKOUT0    9.430        106.045         (R-R)
+EFX_PLL_V2_inst~CLKOUT0    8.978        111.383         (R-R)
+Geomean max period: 8.978
 ---------- Clock Frequency Summary (end) ---------------
 ```
 
-**A RISC-V core with 64Kbyte of memory running at 106MHz using just 16% of the luts on a &pound;10 FPGA is quite good (07/25).**
+**A RISC-V core with 64Kbyte of memory, 2Mbyte of Flash running at 111MHz(Timing_3) using just 16% of the available luts on a &pound;8 FPGA is quite good going (08/25).**
 
 To load the design, start Teraterm(115200,N,8,1) or any other terminal program and execute:
 
@@ -290,6 +316,8 @@ EfinixLoader -q -com 7 -setdira 15 0
 EfinixLoader -q -com 7 -setpina 15 0
 EfinixLoader -q -com 7 -setpina 15 1
 ```
+
+## 7.7.1 Efinix Sapphire Lite RTL Simulation
 
 Similar to the neorv32 example to run RTL simulation navigate to the sim directory and execute the run_questa.bat file in a CMD prompt. You will first need to compile the Efinix primitives and sim_models into a "Efinix" library as shown under the neorv32 example.
 
@@ -317,9 +345,137 @@ Similar to the neorv32 example to run RTL simulation navigate to the sim directo
 #  quit -f
 ```
 
+## 7.7.2 Efinix Sapphire Lite GLS
+
 For the gatelevel execute run_questa_gate.bat.
 
-## 7.8 Create your own design
+
+## 7.8 Flash/PSRAM Example
+
+An easy way to access the embedded T20Q100F3 FLASH chip and external PSRAM chip is by using the Sapphire RISC-V core as it has all the peripherals you need (SPI/UART/PIO). For this example I picked the **standard** Sapphire core which, unlike the Lite version is optimised for performance. I configured the standard core with 4Kbyte I/D cache and added an extra SPI controller as shown below. 
+
+<p align="center">
+<img src="Efinix_riscv_standard.png" alt="Sapphire Flash Read test"/>
+</p>
+<p align="center">
+Figure7: Read flash with the Sapphire core
+</p>
+
+
+Next I wrote a quick program to read the first sector of both the FLASH and PSRAM and output the results to the UART, see *Examples\Efinix_riscv_standard\embedded_sw\T20_Sapphire\software\standalone\dumpFlash*. The RESETN signal is again connected to PA15. 
+
+Before loading the Sapphire RISC core load the PSRAM and Flash with a recognisable pattern:
+
+```
+EfinixLoader.exe -com 7 -psram Examples\Efinix_riscv_standard\pattern1.hex
+EfinixLoader.exe -com 7 -flash Examples\Efinix_riscv_standard\pattern2.hex
+```
+
+Next load the Sapphire Standard core which will display the first sector of both the Flash and PSRAM straight after reset:
+
+```
+EfinixLoader.exe -com 7 Examples\Efinix_riscv_standard\Efinix_riscv_standard.hex
+```
+
+Open a terminal and connect Teraterm(115200,n,8,1) to the UART2UART bridge comport. Once the program is loaded it should display the flash and PSRAM contents:
+
+```
+*** Device ID : 00000014
+
+
+*** Dump First Page of FLASH:
+
+00000000: 56 65 72 73 69 6F 6E 3A 20 32 30 32 35 2E 31 2E
+00000010: 31 31 30 2E 31 2E 35 0A 47 65 6E 65 72 61 74 65
+00000020: 64 3A 20 53 61 74 20 4A 75 6E 20 32 38 20 30 39
+00000030: 3A 31 38 3A 35 31 20 32 30 32 35 0A 0A 50 72 6F
+00000040: 6A 65 63 74 3A 20 48 3A 5C 47 69 74 48 75 62 5C
+00000050: 45 66 69 6E 69 78 5F 54 32 30 5F 44 65 76 5F 42
+00000060: 6F 61 72 64 5C 45 78 61 6D 70 6C 65 73 5C 62 6C
+00000070: 69 6E 6B 5F 6C 65 64 0A 46 61 6D 69 6C 79 3A 20
+00000080: 54 72 69 6F 6E 0A 44 65 76 69 63 65 3A 20 54 32
+00000090: 30 51 31 30 30 46 33 0A 57 69 64 74 68 3A 20 31
+000000a0: 0A 4D 6F 64 65 3A 20 70 61 73 73 69 76 65 0A 50
+000000b0: 41 44 44 45 44 5F 42 49 54 53 3A 20 30 0A 0A 0A
+000000c0: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+000000d0: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+000000e0: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+000000f0: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+
+*** Dump First Page of PSRAM:
+
+00000000: 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 20
+00000010: 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30
+00000020: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+00000030: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+00000040: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+00000050: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+00000060: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+00000070: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+00000080: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+00000090: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+000000a0: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+000000b0: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+000000c0: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+000000d0: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+000000e0: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+000000f0: 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A 0A
+
+Done
+
+```
+The Flash output should be the same as pattern1.hex, the PSRAM should display pattern2.hex.
+
+If you get all **"FF"** for the Flash page, issue a reset as the flash might take some time to get out of deep sleep mode. 
+
+```
+H:\GitHub\Efinix_T20_Dev_Board\EfinixLoader>..\Examples\Efinix_riscv_lite\toggle_reset.bat
+```
+
+
+## 7.8.1 Efinix Sapphire Standard RTL Simulation
+
+Similar to the previous RISC-v examples to run RTL simulation navigate to the sim directory and execute the run_questa.bat file in a CMD prompt. The flash model (W25Q32JVxxIM.v) is initialised with the content of MEM_IM.txt the PSRAM is not connected and will display all ".".  
+
+```
+# Loading work.T20_Sapphire(fast)
+# Loading Efinix.EFX_PLL_V2(fast)
+# Loading work.W25Q32JVxxIM(fast)
+# set NumericStdNoWarnings 1
+# 1
+#  nolog -r /*
+#  run -all
+# N =  1, M = 100, O = 2, DIV0 =   6, DIV1 =   2, DIV2 =   2
+# Using internal feedback
+# CLKIN reference clock period = 83.3340 ns (12.00 MHz)
+# VCO period = 0.8333 ns (1199.99 MHz)
+# PLL period = 1.6667 ns (600.00 MHz)
+# CLKOUT0 period = 10.0001 ns (100.00 MHz), shift = 0.0000 ns
+# CLKOUT1 period = 3.3334 ns (300.00 MHz), shift = 0.0000 ns
+# CLKOUT2 period = 3.3334 ns (300.00 MHz), shift = 0.0000 ns
+# Reached Lock @ 625.00 ns
+#
+# Command = ab
+#
+# Command = 03
+# UART0:
+# UART0: *** Device ID : 00000015
+# UART0:
+# UART0: *** Dump First Page of Flash:
+# UART0:
+# UART0: 00000000: 56 65 72 73 69 6F 6E 3A 20 32 30 32 35 2E 31 2E
+# UART0: 00000010: 31 31 30 2E 31 2E 35 0A 47 65 6E 65 72 61 74 65
+# UART0: 00000020: 64 3A 20 57 65 64 20 4A 75 6C 20 33 30 20 30 38
+# UART0: 00000030: 3A 33 37 3A 30 32 20 32 30 32 35 0A 0A 50 72 6F
+# UART0: 00000040: 6A 65 63 74 3A 20 48 3A 5C 47 69 74 48 75 62 5C
+...
+```
+
+## 7.8.2 Efinix Sapphire Standard GLS
+
+[TBC]
+
+## 7.9 Create your own design
 
 To create your own design you need the [Efinix Efinity Place&Route](https://www.efinixinc.com/products-efinity.html) software. You need to sign-up to get a free license. I would also suggest you check out the [forum](https://forum.efinix.net/latest) which has some good advice on various issues.
 

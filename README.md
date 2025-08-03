@@ -20,7 +20,7 @@ This repository described a small low-cost Efinix T20Q100 FPGA development board
 - 47<sup>1</sup> 3.3volt I/O pins divided over 3 IDC connectors
 - 17 FPGA pins can be toggled/monitored via USB-C
 - IP Core communication via USB-C (UART2UART bridge)
-- *[TBC] Optional 8MByte ESP-PSRAM64H memory chip*
+- *Optional 8MByte ESP-PSRAM64H memory chip*
 - On-Board tiny STM32C071 microcontroller to control the FPGA
 - Small, less than credit card size (71mm x 48mm)
 - Sapphire RISC-V core @106MHz using just 20% of the FPGA LUTs
@@ -71,7 +71,7 @@ The board should be able to be hand-soldered. This means no 0201 components wher
 
 # 4. How to order a fully assembled board
 
-You can order a [fully assembled board from PCBWay](https://www.pcbway.com/project/shareproject/Efinix_T20Q100_FPGA_Development_Board_0ee8c6c9.html), this is the easiest and quickest way to get the board. The only disadvantage of ordering a fully assembled board is the minimum order quantity of 5 boards. 
+You can order a [fully assembled board from PCBWay](https://www.pcbway.com/project/shareproject/Efinix_T20Q100_FPGA_Development_Board_0ee8c6c9.html), this is the easiest and quickest way to get the board. The only disadvantage is the minimum order quantity of 5 boards. 
 
 The price displayed when you select PCB+Assembly is not the price you pay (not talking about VAT+Delivery). After you add the boards to the shopping cart PCBWay calculates the real price after a short review period. 
 
@@ -81,13 +81,13 @@ Note that the purchase is directly from PCBWAY, if something goes wrong you need
 <img src="readymade.png" alt="Fully Assembled Board"/>
 </p>
 
-The fully assembled board does not yet contain the ESP-PSRAM64H and any through-hole components as this will increase the assembly cost considerably. The ESP-PSRAM64H will be added after I make sure it works OK and can be purchased with reasonable delivery charges.
+The fully assembled board does not yet contain the ESP-PSRAM64H and any through-hole components as this will increase the assembly cost considerably. The ESP-PSRAM64H was omitted due to the (silly) delivery charges. This is an easy to solder device and can be added later. You also don't have to use an ESP-PSRAM64H as most of the SOIC8 PSRAM devices have the same pin-out and SPI commands. For example an alternative (untested) device is the "APS1604M-3SQR" 16Mbit QSPI/QPI PSRAM device which is available for around [$1 from LCSC](https://lcsc.com/product-detail/PSRAM_AP-Memory-APS1604M-3SQR-ZR_C22423595.html?s_z=n_PSRAM). 
 
 Once you have received the board(s) you need to solder J5 (4 pins) and close jumper J3.
 
 # 5. How to make your own board
 
-Making your own board can be more cost-effective if you already have the necessary tools. The price from PCBWay [07/25] is roughly $60/&pound;45 for 5 boards (excl delivery, VAT). The most expensive chip is the T20Q100F3 which is available from [DigiKey](https://www.digikey.com/en/products/detail/efinix-inc/T20Q100F3C4/19101258) for about $10, watch out for delivery charges. The remaining parts can be purchased for [LCSC Electronics](https://lcsc.com/) for very little money.
+Making your own board can be more cost-effective if you already have the necessary tools. The price from PCBWay [07/25] is roughly $60/&pound;45 for 5 boards (excl delivery, VAT). The most expensive chip is the T20Q100F3 which is available from [DigiKey](https://www.digikey.com/en/products/detail/efinix-inc/T20Q100F3C4/19101258) for about $10, watch out for delivery charges. The remaining parts can be purchased from [LCSC Electronics](https://lcsc.com/) for very little money.
 
 The Gerber files, schematics and part list are available in the PCB directory. You can zip up these files and send them to PCBWAY, JLCPCB etc for manufacturing. I would highly recommend you add a stencil when you order this board. Also if you have never used these manufacturers before they might give you first-time-buyer vouchers which makes the board even cheaper. 
 
@@ -253,9 +253,24 @@ See **examples\pll_test** for a unified flow example. Note that the current Efin
 
 ## 8.2 Internal Flash
 
-The T20Q100F3 has 16Mbit of internal flash which can be used to load the FPGA during power up and/or for internal storage. The Efinixloader can be used to program the flash and to read the contents back. Each image requires 663Kbyte, thus about 1.4MByte is available for user code. 
+The T20Q100F3 has 16Mbit of internal flash which can be used to load the FPGA during power up and/or for internal storage. The Efinixloader can be used to program the flash and to read the contents back. Each image requires 663Kbyte, thus about 1.4MByte is available for user code. See examples directory for an example on how to read the flash with a RISC_V core. 
 
-## 8.2 LEDs
+
+## 8.3 PSRAM memory
+
+The user can fit a Pseudo Static Memory device which can be used to add some RAM to the board. The board was designed and tested with a 64Mbit ESP-PSRAM64H. Note that most of the SOIC8 PSRAM devices seem to have the same pin-out and SPI commands. For example an alternative (untested) device is the "APS1604M-3SQR" 16Mbit QSPI/QPI PSRAM device which is available for around [$1 from LCSC](https://lcsc.com/product-detail/PSRAM_AP-Memory-APS1604M-3SQR-ZR_C22423595.html?s_z=n_PSRAM). 
+
+<p align="center">
+<img src="psram_flash.png" alt="Flash/PSRAM Connections"/>
+</p>
+</p>
+<p align="center">
+Figure6: Flash/PSRAM Connections
+</p>
+
+Note that if J3 is closed (which is recommended) pin GPIOL_00 and GPIOL_45 are connected and hence only 1 should be driven at the same time. The examples directory has an example on how to read the PSRAM with a RISC_V core.
+
+## 8.4 LEDs
 
 The T20Q100 development board has 5 LED's, 1 red LED is used for Power, 1 blue LED is connected to the STM32C071 controller and the remaining 3 LED's can be controller by the T20Q100 (pin GPIOB_TXP01, GPIOB_TXN04 and GPIOB_TXP07). Apart from the power LED and other LED's are off by default.  The 3 FPGA LED's are all used in the blink_led example example. The STM32 blue LED connected to the STM32C071 port PB4. You can turn it on and off using the Efinixloader (Windows Batch file example):
 
@@ -268,16 +283,16 @@ EfinixLoader.exe -com 7 -setpinb 4 1
 
 This STM32C071 blue led is used for debugging and if turned on something has gone wrong on the STM32C071 code.
 
-## 8.3 Push Button
+## 8.5 Push Button
 
 The T20Q100 Development board has a tiny single push button connected to GPIOB_TXP04(32) pin, the push action results in an active low signal (default pull-up). When using this push button a debounce circuit might be required. In my opinion it is easier to use the STM32C071 to drive a pin than to use this tiny push button.
 
 
-## 8.4 STM32 T20Q100 parallel pin connections
+## 8.6 STM32 T20Q100 parallel pin connections
 
 The STM32C071 has a total of 17 parallel pin connections with the T20Q100. These pins can be input or output. See pin_toggle example. Note development is in progress to make the pin assignment more flexible.
 
-## 8.5 Power consumption
+## 8.7 Power consumption
 
 The board has a 500mA 3.3volt and a 300mA 1.2 volt linear regulator. In passive mode waiting to be programmed the whole board consumes around 76mW, when the RISC-V core is running at 67MHz with 1 LED toggling the power increases to about 268mW. 
 
@@ -290,7 +305,7 @@ Not yet, however, using STM32CubeIDE it shouldn't be too difficult to write your
 Perhaps, just log an enhancement request on GitHub and I will have a look.
 
 ## 9.3 Do you know a reliable source for the PSRAM memory?
-No, but I have ordered some from AliExpress and will update this page what I find out.
+No, but I have used an [ESP-PSRAM64H ordered from AliExpress](https://www.aliexpress.com/item/1005006440914173.html?spm=a2g0o.order_detail.order_detail_item.3.7f72f19cpM4uCz) which worked fine (not tested at full 133MHz speed)
 
 # 10. Errata
 
@@ -304,8 +319,8 @@ If you are planning to make your own board based on this design I would recommen
 - Fix the issue as described under the above errata section
 - Add missing pin1 indicator to J5
 - Add 2.54mm test pin to the USART RX (PB7) of the STM32C071
-- Connect SPI_CS_N to one of the microcontroller pins
-- The D2(SP0503BAHT) ESD protection diode might be redundant given the large number of exposed pins without protection.
+- The D2(SP0503BAHT) ESD protection diode might be redundant given the large number of exposed pins without protection
+- Close J3 and remove GPIOL_45 connection as it is no longer required
 
 
 ## License

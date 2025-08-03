@@ -51,24 +51,38 @@
 //--------------------------------------------------------------------------------------------------
 #define	TYPE_START_DATA 			0x00            				// Start upload bitstream image to FPGA
 #define	TYPE_START_FLASH 			0x01            				// Start upload bitstream image to Flash
-#define	TYPE_FPGA_DATA 				0x02 							// bitstream data
-#define	TYPE_FLASH_DATA 			0x03 							// flash data
-#define TYPE_END_PROGRAMMING		0x04							// Restore I/O pins
+#define	TYPE_START_PSRAM 			0x02            				// Start upload bitstream image to Flash
+#define	TYPE_FPGA_DATA 				0x03 							// bitstream data
+#define	TYPE_FLASH_DATA 			0x04 							// flash data
+#define	TYPE_PSRAM_DATA 			0x05 							// flash data
+#define TYPE_END_PROGRAMMING		0x06							// Restore I/O pins
 
-#define	TYPE_TOGGLE_CRESET 			0x05							// FPGA Reset
-#define TYPE_WRITE_PIN              0x06							// Write 0/1 to pin
-#define TYPE_READ_PORT              0x07							// Read port A/B/C
-#define TYPE_PIN_DIRECTION			0x08
-#define TYPE_PIN_RESISTOR			0x09							// Enable Pull-up/Pull-down
-#define TYPE_ALT_FUNCTION           0x0A							
+#define	TYPE_TOGGLE_CRESET 			0x07							// FPGA Reset
+#define TYPE_WRITE_PIN              0x08							// Write 0/1 to pin
+#define TYPE_READ_PORT              0x09							// Read port A/B/C
+#define TYPE_PIN_DIRECTION			0x0A
+#define TYPE_PIN_RESISTOR			0x0B							// Enable Pull-up/Pull-down
+#define TYPE_ALT_FUNCTION           0x0C							// Select Alternate/peripheral function
 
-#define TYPE_FLASH_CLEAR_ADDR		0x0B						    // Clear 24bits address
-#define TYPE_FLASH_INC_PAGE			0x0C							// Increase address by 256
-#define TYPE_FLASH_INC_SECTOR		0x0D							// Increase address by 4096
-#define TYPE_FLASH_INC_64K			0x0E							// Increase address by 65536
-#define TYPE_CHECK_BUSY             0x17							// Read Flash Busy bit
-#define TYPE_FLASH_CHIP_ERASE		0x18							// Issue Chip erase, command 0xC7
-#define TYPE_FLASH_SECTOR_ERASE		0x19							// Issue sector erase, command 0x20
+#define TYPE_FLASH_CLEAR_ADDR		0x0D						    // Clear 24bits address
+#define TYPE_FLASH_INC_PAGE			0x0E							// Increase address by 256
+#define TYPE_FLASH_INC_SECTOR		0x0F							// Increase address by 4096
+#define TYPE_FLASH_INC_64K			0x10							// Increase address by 65536
+#define TYPE_FLASH_RD_ADDR0			0x11							// Read Address [7:0]
+#define TYPE_FLASH_RD_ADDR1			0x12							// Read Address [15:8]
+#define TYPE_FLASH_RD_ADDR2			0x13							// Read Address [23:16]
+#define TYPE_FLASH_RD_STATUS0		0x14							// Read Status Register 0
+#define TYPE_FLASH_RD_STATUS1		0x15							// Read Status Register 1
+#define TYPE_FLASH_WR_STATUS0		0x16							// Write Status LSbyte
+#define TYPE_FLASH_WR_STATUS1		0x17							// Write Status MSbyte
+#define TYPE_FLASH_RESET			0x18							// Reset Flash
+#define TYPE_CHECK_BUSY             0x19							// Read Flash Busy bit
+#define TYPE_FLASH_CHIP_ERASE		0x1A							// Issue Chip erase, command 0xC7
+#define TYPE_FLASH_SECTOR_ERASE		0x1B							// Issue sector erase, command 0x20
+//#define 0x1C
+//#define 0x1D
+//#define 0x1E
+//#define 0x1F
 
 #define TYPE_ENABLE_UART			0x20							// Connect STM32 UART_TX to GPIO40
 #define TYPE_DISABLE_UART			0x21							// Change STM32 UART_TX to input so that GPIO40 is free

@@ -27,6 +27,7 @@
 int  	debug=0;                     								// debug display messages enabled
 bool 	quiet=false;													
 bool    useflash=false;												// Default upload bitstream to FPGA	
+bool    usepsram=false;												// upload to PSRAM if true
 int     sequence=0;  
 
 
@@ -86,9 +87,13 @@ int main(int argc,char **argv)
             i++;
 			
 		} else if (strcmp(argv[i],"-flash")==0) {	
-			txframe[1]=TYPE_START_FLASH;		
+			//txframe[1]=TYPE_START_FLASH;		
 			useflash=true;											// Upload to flash instead of RAM
 			i++;				
+		} else if (strcmp(argv[i],"-psram")==0) {	
+			//txframe[1]=TYPE_START_PSRAM;		
+			usepsram=true;											// Upload to PSRAM instead of FLASH/RAM
+			i++;	
 			
 		} else if (strcmp(argv[i],"-status")==0) {								
 			txframe[1]=TYPE_DEBUG_STATUS;							// Read status word
@@ -288,6 +293,7 @@ int main(int argc,char **argv)
 			break;	
 			
 		case TYPE_DUMP_FLASH :
+		case TYPE_DUMP_PSRAM :
 			if ((write_frame(port,txframe,CMD_FRAME_LENGTH,0,1000)&0x30)==STATUS_ACK) {				
 				for (int i=0;i<DUMP_LENGTH;i++) {
     				if (i%16==0) printf("\n%02x: ",i);
@@ -359,7 +365,7 @@ void upload_bitstream(HANDLE port,char * hexfilename)
     sequence=0;
 	if((fp=fopen(hexfilename,"rt"))!=NULL) {
 		qprintf("Reading Hex file   : %s\n",hexfilename);
-		qprintf("Upload to          : %s\n",useflash?"FPGA Flash":"FPGA RAM");	
+		qprintf("Upload to          : %s\n",useflash?"FPGA Flash":usepsram?"PSRAM":"FPGA RAM");	
 		
 		if (stat(hexfilename, &st) == 0) {
 			qprintf("File size is       : %lld bytes\n\n",(long long)st.st_size);
@@ -373,6 +379,9 @@ void upload_bitstream(HANDLE port,char * hexfilename)
 		if (useflash){				
 			txframe[1]=TYPE_START_FLASH;							// Start upload bitstream image to FPGA
 			timeout=MAX_BUSY_RETRY*1000;							// 5ms max timeout
+		} else if (usepsram) {
+			txframe[1]=TYPE_START_PSRAM;							// Start upload bitstream image to PSRAM
+			timeout=MAX_BUSY_RETRY*1000;							// 5ms max timeout			
 		} else {
 			txframe[1]=TYPE_START_DATA;
 			timeout=1000;
@@ -389,6 +398,8 @@ void upload_bitstream(HANDLE port,char * hexfilename)
 				framecount++;
 				if (useflash){
 					txframe[1]=(sequence<<6)|TYPE_FLASH_DATA;		// Next frame is flash data
+				} else if (usepsram) {
+					txframe[1]=(sequence<<6)|TYPE_PSRAM_DATA;		// Next frame is psram data
 				} else {
 					txframe[1]=(sequence<<6)|TYPE_FPGA_DATA;		// Next frame is fpga data
 				}
@@ -408,6 +419,8 @@ void upload_bitstream(HANDLE port,char * hexfilename)
 			for (int j=bc;j<DATA_LENGTH;j++) txframe[j+2]=0;					
 			if (useflash){
 				txframe[1]=(sequence<<6)|TYPE_FLASH_DATA;			
+			} else if (usepsram) {
+				txframe[1]=(sequence<<6)|TYPE_PSRAM_DATA;		
 			} else {
 				txframe[1]=(sequence<<6)|TYPE_FPGA_DATA;			
 			}							
@@ -418,9 +431,10 @@ void upload_bitstream(HANDLE port,char * hexfilename)
 			
 			for (int j=0;j<DATA_LENGTH;j++) txframe[j+2]=0xFF;		// Empty frame	
 
-			if (useflash){
+			if (useflash || usepsram){
 				//---------------------------------------------------------------------------------
 				// For Flash length should be rounded up to T20_FLASH_PAGE_SIZE (256/16) data frames
+				// We do the same for PSRAM but this is not required
 				//---------------------------------------------------------------------------------
 				qprintf("Total %d frames send\n",framecount);
 				if (framecount%(T20_FLASH_PAGE_SIZE/DATA_LENGTH)){
@@ -428,7 +442,11 @@ void upload_bitstream(HANDLE port,char * hexfilename)
 				}
 				
 				for (int j=(framecount%(T20_FLASH_PAGE_SIZE/DATA_LENGTH));j<(T20_FLASH_PAGE_SIZE/DATA_LENGTH);j++){										
-					txframe[1]=(sequence<<6)|TYPE_FLASH_DATA;								
+					if (useflash){
+						txframe[1]=(sequence<<6)|TYPE_FLASH_DATA;								
+					} else {
+						txframe[1]=(sequence<<6)|TYPE_PSRAM_DATA;
+					}
 					if (write_frame(port,txframe,DATA_FRAME_LENGTH,0,timeout)==STATUS_NACK) goto giveup;
 					sequence=(sequence+1)&0x3;
 				}			
@@ -645,7 +663,8 @@ void usage_exit(void)
     printf("-q                   : quiet, must be specified first in the options list\n");  
     printf("-com portnumber      : Comport, 1.. default to \"%s\"\n",DEFAULT_COMPORT);
     printf("-baud int            : Baudrate, default is %d\n",DEFAULT_BAUDRATE);
-	printf("-flash               : Write bitstream to FLASH memory, default to RAM\n");
+	printf("-flash               : Write hex file to FLASH memory, default to RAM\n");
+	printf("-psram               : Write hex file to PSRAM memory\n");
     
 	printf("-readflash           : Read 256 bytes from flash\n");
 	printf("-readpsram           : Read 256 bytes from psram\n");
