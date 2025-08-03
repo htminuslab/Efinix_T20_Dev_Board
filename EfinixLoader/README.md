@@ -109,7 +109,12 @@ Done.
 ```
 After the image has been upload the efinixloader will issue a **-reset** command which loads the image from flash to ram and start it.
 
-## 2.2 Read Flash memory
+## 2.2 Upload to PSRAM
+
+If the PSRAM is fitted you can upload to it as well although you cannot execute from it. Simply use the -psram option when uploading a file. The data is then available for whatever IP core is uploaded.
+
+
+## 2.3 Read Flash memory
 
 The flash can be read using the **-readflash** command. First issue the **-resetaddr** commands which resets an internal flash read memory pointer. If you now issue the **-readflash** command you will read the first 256 bytes (address pointer is 0x000000):
 
@@ -173,6 +178,12 @@ To reach a particular sector you can increase the memory pointer by 1 page (256 
 -nextsector          : Increase address pointer by 4096
 -next64k             : Increase address pointer by 65536
 ```
+
+## 2.4 Read PSRAM memory
+
+As with the Flash memory the PSRAM can be read using the **-readpsram** argument. The Address pointer is shared with the Flash command. Thus if
+ you read a Flash or PSRAM sector the pointer is updated. 
+
 
 # 3. Check FPGA status
 
